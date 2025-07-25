@@ -878,26 +878,27 @@ func extractValidateTag(tag string) string {
 // 判断是否是内置验证器
 func isBuiltInValidator(validator string) bool {
 	builtInValidators := map[string]bool{
-		"required":  true,
-		"mobile":    true,
-		"idcard":    true,
-		"email":     true,
-		"url":       true,
-		"ip":        true,
-		"len":       true,
-		"min":       true,
-		"max":       true,
-		"eq":        true,
-		"ne":        true,
-		"lt":        true,
-		"lte":       true,
-		"gt":        true,
-		"gte":       true,
-		"oneof":     true,
-		"numeric":   true,
-		"alpha":     true,
-		"alphanum":  true,
-		"omitempty": true, // 这实际上是JSON标签的一部分，不是验证标签
+		"required":    true,
+		"required_if": true,
+		"mobile":      true,
+		"idcard":      true,
+		"email":       true,
+		"url":         true,
+		"ip":          true,
+		"len":         true,
+		"min":         true,
+		"max":         true,
+		"eq":          true,
+		"ne":          true,
+		"lt":          true,
+		"lte":         true,
+		"gt":          true,
+		"gte":         true,
+		"oneof":       true,
+		"numeric":     true,
+		"alpha":       true,
+		"alphanum":    true,
+		"omitempty":   true, // 这实际上是JSON标签的一部分，不是验证标签
 	}
 
 	// 检查是否是带参数的内置验证器，如min=10
