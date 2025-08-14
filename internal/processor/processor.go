@@ -297,6 +297,8 @@ func ProcessTypesFile(filePath string, options Options) error {
 		// 结束map定义
 		validationFileContent.WriteString("}\n")
 
+		validationFileContent.WriteString("\n\n" + ValidateVar + "\n")
+
 		// 添加init函数
 		validationFileContent.WriteString(ValidateInitFunc + "\n")
 
@@ -429,9 +431,9 @@ func ProcessTypesFile(filePath string, options Options) error {
 			newValidationContent = mapRegex.ReplaceAllString(validationContent, newMapContent.String())
 
 			// 移除validate变量的声明(如果存在)
-			validateVarPattern := `var validate = validator\.New\(\)\n*`
-			validateVarRegex := regexp.MustCompile(validateVarPattern)
-			newValidationContent = validateVarRegex.ReplaceAllString(newValidationContent, "")
+			//validateVarPattern := `var validate = validator\.New\(\)\n*`
+			//validateVarRegex := regexp.MustCompile(validateVarPattern)
+			//newValidationContent = validateVarRegex.ReplaceAllString(newValidationContent, "")
 
 			// 添加缺失的验证函数到文件末尾
 			if missingFuncContent.Len() > 0 {
@@ -450,6 +452,9 @@ func ProcessTypesFile(filePath string, options Options) error {
 
 			// 添加验证方法映射（不添加validator变量）
 			newFullContent.WriteString(newMapContent.String() + "\n")
+
+			// 添加 var validate = validator.New()
+			newFullContent.WriteString("\n\n" + ValidateVar + "\n")
 
 			// 添加init函数
 			newFullContent.WriteString(ValidateInitFunc + "\n")
@@ -814,7 +819,7 @@ func ProcessTypesFile(filePath string, options Options) error {
 				// 实现比较复杂，这里简单处理为在末尾添加
 			} else {
 				// 在包声明之后添加导入
-				importStatement := "\n\nimport (\n\t" + ValidateImport + "\n)"
+				//importStatement := "\n\nimport (\n\t" + ValidateImport + "\n)"
 
 				// 插入导入语句
 				if options.DebugMode {
@@ -822,14 +827,12 @@ func ProcessTypesFile(filePath string, options Options) error {
 				}
 
 				// 将导入添加到文件内容
-				fileContentStr = fileContentStr[:packageEndPos] + importStatement + fileContentStr[packageEndPos:]
+				fileContentStr = fileContentStr[:packageEndPos] + fileContentStr[packageEndPos:]
 				fileContent = []byte(fileContentStr)
 			}
 		}
 
-		// 添加验证器变量的声明
-		validateVarStatement := "\n\n" + ValidateVar
-		fileContentStr = string(fileContent) + validateVarStatement
+		fileContentStr = string(fileContent)
 		fileContent = []byte(fileContentStr)
 	}
 
