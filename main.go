@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/linabellbiu/goctl-validate/internal/processor"
 	"github.com/linabellbiu/goctl-validate/internal/validator"
-	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/zeromicro/go-zero/tools/goctl/plugin"
@@ -12,7 +13,7 @@ import (
 
 var (
 	// 版本信息
-	version = "1.1.0"
+	version = "1.1.1"
 	// 是否添加自定义验证方法
 	enableCustomValidation bool
 	// 是否启用调试模式
