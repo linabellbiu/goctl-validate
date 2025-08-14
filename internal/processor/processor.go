@@ -504,7 +504,7 @@ func ProcessTypesFile(filePath string, options Options) error {
 			return fmt.Errorf("格式化更新的验证文件代码失败: %w", err)
 		}
 
-		if err := os.WriteFile(validationFilePath, formatted, 0644); err != nil {
+		if err := os.WriteFile(validationFilePath, formatted, 0o644); err != nil {
 			return fmt.Errorf("写入更新的验证文件失败: %w", err)
 		}
 
@@ -568,6 +568,29 @@ func ProcessTypesFile(filePath string, options Options) error {
 			translatorFileContent.WriteString("\treturn errors.New(strings.Join(errMsgs, \", \"))\n")
 			translatorFileContent.WriteString("}\n\n")
 
+			// 添加错误翻译自定义语言
+			translatorFileContent.WriteString("// TranslateWithLang 翻译验证错误自定义语言\n")
+			translatorFileContent.WriteString("func TranslateWithLang(err error, lang string) error {\n")
+			translatorFileContent.WriteString("\tif err == nil {\n")
+			translatorFileContent.WriteString("\t\treturn nil\n")
+			translatorFileContent.WriteString("\t}\n\n")
+			translatorFileContent.WriteString("\tlangtrans, ok := uni.GetTranslator(lang)\n")
+			translatorFileContent.WriteString("\tif !ok {\n")
+			translatorFileContent.WriteString("\t\tlangtrans = trans\n")
+			translatorFileContent.WriteString("\t}\n\n")
+			translatorFileContent.WriteString("\tvar errs validator.ValidationErrors\n")
+			translatorFileContent.WriteString("\tif ok := errors.As(err, &errs); !ok {\n")
+			translatorFileContent.WriteString("\t\treturn err\n")
+			translatorFileContent.WriteString("\t}\n\n")
+			translatorFileContent.WriteString("\tvar errMsgs []string\n")
+			translatorFileContent.WriteString("\tfor _, e := range errs {\n")
+			translatorFileContent.WriteString("\t\ttranslatedErr := e.Translate(langtrans)\n")
+			translatorFileContent.WriteString("\t\terrMsgs = append(errMsgs, translatedErr)\n")
+			translatorFileContent.WriteString("\t}\n")
+			translatorFileContent.WriteString("\t// TODO 可以自定义错误类型\n")
+			translatorFileContent.WriteString("\treturn errors.New(strings.Join(errMsgs, \", \"))\n")
+			translatorFileContent.WriteString("}\n\n")
+
 			// 添加自定义翻译注册函数
 			translatorFileContent.WriteString("// 注册自定义翻译\n")
 			translatorFileContent.WriteString("func registerCustomTranslations(validate *validator.Validate, trans ut.Translator) {\n")
@@ -619,7 +642,7 @@ func ProcessTypesFile(filePath string, options Options) error {
 				return fmt.Errorf("格式化翻译器文件代码失败: %w", err)
 			}
 
-			if err := os.WriteFile(translatorFilePath, formatted, 0644); err != nil {
+			if err := os.WriteFile(translatorFilePath, formatted, 0o644); err != nil {
 				return fmt.Errorf("写入翻译器文件失败: %w", err)
 			}
 
@@ -752,7 +775,7 @@ func ProcessTypesFile(filePath string, options Options) error {
 				}
 
 				// 写入更新后的文件
-				if err := os.WriteFile(translatorFilePath, formatted, 0644); err != nil {
+				if err := os.WriteFile(translatorFilePath, formatted, 0o644); err != nil {
 					return fmt.Errorf("写入更新的翻译器文件失败: %w", err)
 				}
 
@@ -835,7 +858,7 @@ func ProcessTypesFile(filePath string, options Options) error {
 		}
 
 		// 写回文件
-		if err := os.WriteFile(filePath, formatted, 0644); err != nil {
+		if err := os.WriteFile(filePath, formatted, 0o644); err != nil {
 			return fmt.Errorf("写入文件失败: %w", err)
 		}
 
@@ -853,7 +876,7 @@ func ProcessTypesFile(filePath string, options Options) error {
 		}
 
 		// 写入验证文件
-		if err := os.WriteFile(validationFilePath, formatted, 0644); err != nil {
+		if err := os.WriteFile(validationFilePath, formatted, 0o644); err != nil {
 			return fmt.Errorf("写入验证文件失败: %w", err)
 		}
 
@@ -943,7 +966,7 @@ func ProcessTranslator(filePath string, regFuncFromTypeStruct string, customTags
 	if !translatorExists {
 		// 如果翻译器文件不存在，创建一个新的
 		translatorCode := generateNewTranslatorCode(customTags)
-		return os.WriteFile(translatorFilePath, []byte(translatorCode), 0644)
+		return os.WriteFile(translatorFilePath, []byte(translatorCode), 0o644)
 	}
 
 	// 更新现有的翻译器文件
@@ -992,7 +1015,7 @@ func ProcessTranslator(filePath string, regFuncFromTypeStruct string, customTags
 			// 添加新的翻译
 			updatedContent := append(translatorContent[:initEndPos], []byte(newTranslations.String())...)
 			updatedContent = append(updatedContent, translatorContent[initEndPos:]...)
-			return os.WriteFile(translatorFilePath, updatedContent, 0644)
+			return os.WriteFile(translatorFilePath, updatedContent, 0o644)
 		}
 
 		// 找到此RegisterTranslation调用的结束位置
@@ -1013,7 +1036,7 @@ func ProcessTranslator(filePath string, regFuncFromTypeStruct string, customTags
 		// 插入新的翻译
 		updatedContent := append(translatorContent[:afterLastRegister], []byte(newTranslations.String())...)
 		updatedContent = append(updatedContent, translatorContent[afterLastRegister:]...)
-		return os.WriteFile(translatorFilePath, updatedContent, 0644)
+		return os.WriteFile(translatorFilePath, updatedContent, 0o644)
 	}
 
 	return nil
@@ -1242,7 +1265,7 @@ func (r *%s) Validate() error {
 		if _, err := os.Stat(validationFilePath); os.IsNotExist(err) {
 			// 生成新的validation.go文件
 			validationCode := generateValidationCode(packageName, customTags, existingValidations)
-			err = os.WriteFile(validationFilePath, []byte(validationCode), 0644)
+			err = os.WriteFile(validationFilePath, []byte(validationCode), 0o644)
 			if err != nil {
 				return err
 			}
@@ -1285,7 +1308,7 @@ func (r *%s) Validate() error {
 			// 添加新的验证函数
 			if newValidations.Len() > 0 {
 				validationContent = append(validationContent, []byte(newValidations.String())...)
-				err = os.WriteFile(validationFilePath, validationContent, 0644)
+				err = os.WriteFile(validationFilePath, validationContent, 0o644)
 				if err != nil {
 					return err
 				}
@@ -1294,7 +1317,7 @@ func (r *%s) Validate() error {
 	}
 
 	// 保存对types.go文件的修改
-	return os.WriteFile(filePath, fileContent, 0644)
+	return os.WriteFile(filePath, fileContent, 0o644)
 }
 
 // 查找匹配的右括号位置
