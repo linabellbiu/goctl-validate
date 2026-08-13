@@ -1066,6 +1066,7 @@ func isBuiltInValidator(validator string) bool {
 		"postcode_iso3166_alpha2_field": true,
 		"e164":                          true,
 		"country_code":                  true,
+		"dive":                          true,
 	}
 
 	// 检查是否是带参数的内置验证器，如 min=10, datetime=2006-01-02
