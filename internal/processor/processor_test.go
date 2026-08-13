@@ -173,6 +173,7 @@ func TestIsBuiltInValidator(t *testing.T) {
 		{name: "age_range=18-65（应为false）", validator: "age_range=18-65", want: false},
 		{name: "custom_datetime（应为false）", validator: "custom_datetime", want: false},
 		{name: "my_validator（应为false）", validator: "my_validator", want: false},
+		{name: "dive", validator: "dive", want: true},
 	}
 
 	for _, tt := range tests {
